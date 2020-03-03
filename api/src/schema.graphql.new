@@ -63,12 +63,98 @@ type Property {
   categories: [Category] @relation(name: "IN_CATEGORY", direction: "OUT")
 }
 
+type Address {
+  id: ID!
+  street_number: String
+  street_pre_direction: String
+  street_name: String
+  street_suffix: String
+  street_post_direction: String
+  unit_type: String
+  unit_number: String
+  formatted_street_address: String
+  city: String
+  state: String
+  zip_code: String
+  zip_plus_four_code: String
+  latitude: Float
+  longitude: Float
+  census_tract: String
+}
+
+type Parcel {
+  id: ID!
+  apn_original: String
+  apn_unformatted: String
+  apn_previous: String
+  fips_code: String
+  depth_ft: Int
+  frontage_ft: Int
+  area_sq_ft: Int
+  area_acres: Float
+  county_name: String
+  county_land_use_code: String
+  county_land_use_description: String
+  standardized_land_use_category: String
+  standardized_land_use_type: String
+  location_descriptions: [String]
+  zoning: String
+  building_count: Int
+  tax_account_number: String
+  legal_description: String
+  lot_code: String
+  lot_number: String
+  subdivision: String
+  municipality: String
+  section_township_range: String
+}
+
+
+
 type Listing {
   id: ID!
   name: String
   address: String
   city: String
   state: String
+  avgStars: Float @cypher(statement: "MATCH (this)<-[:REVIEWS]-(r:Review) RETURN coalesce(avg(r.stars),0.0)")
+  reviews: [Review] @relation(name: "REVIEWS", direction: "IN")
+  categories: [Category] @relation(name: "IN_CATEGORY", direction: "OUT")
+}
+
+type Structure {
+  id: ID!
+  year_built: Int
+  effective_year_built: Int
+  stories: String
+  rooms_count: Int
+  beds_count: String
+  rooms_count: Int
+  baths: Float
+  partial_baths_count: Int
+  units_count: Int
+  parking_type: String
+  parking_spaces_count: Int
+  pool_type: String
+  architecture_type: String
+  construction_type: String
+  exterior_wall_type: String
+  foundation_type: String
+  roof_material_type: String
+  roof_style_type: String
+  heating_type: String
+  heating_fuel_type: String
+  air_conditioning_type: String
+  fireplaces: String
+  basement_type: String
+  quality: String
+  flooring_types: [String]
+  plumbing_fixtures_count: String
+  interior_wall_type: String
+  water_type: String
+  sewer_type: String
+  total_area_sq_ft: String
+  stories: String
   avgStars: Float @cypher(statement: "MATCH (this)<-[:REVIEWS]-(r:Review) RETURN coalesce(avg(r.stars),0.0)")
   reviews: [Review] @relation(name: "REVIEWS", direction: "IN")
   categories: [Category] @relation(name: "IN_CATEGORY", direction: "OUT")
