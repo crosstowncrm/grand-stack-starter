@@ -1,0 +1,195 @@
+type User {
+  id: ID!
+  name: String
+  follows: [User] @relation(name: "FOLLOWS", direction: "BOTH")
+  contacts:  [Contact] @relation(name: "HAS RELATIONSHIP WITH", direction: "OUT")
+  companies:  [Contact] @relation(name: "HAS RELATIONSHIP WITH", direction: "OUT")
+  reviews: [Review] @relation(name: "WROTE", direction: "OUT")
+  avgStars: Float
+    @cypher(
+      statement: "MATCH (this)-[:WROTE]->(r:Review) RETURN toFloat(avg(r.stars))"
+    )
+  numReviews: Int
+    @cypher(statement: "MATCH (this)-[:WROTE]->(r:Review) RETURN COUNT(r)")
+  recommendations(first: Int = 3): [Business] @cypher(statement: "MATCH (this)-[:WROTE]->(r:Review)-[:REVIEWS]->(:Business)<-[:REVIEWS]-(:Review)<-[:WROTE]-(:User)-[:WROTE]->(:Review)-[:REVIEWS]->(rec:Business) WHERE NOT EXISTS( (this)-[:WROTE]->(:Review)-[:REVIEWS]->(rec) )WITH rec, COUNT(*) AS num ORDER BY num DESC LIMIT $first RETURN rec")
+}
+
+type Contact {
+  id: ID!
+  first_name: String
+  last_name: String
+  suffix: String
+  birthday: String
+  company_name: String
+  job_title: String
+  contact_emails: [String]
+  phone_numbers: [String]
+  address: String
+  city: String
+  state: String
+  linkedin_url: String
+  facebook_url: String
+  street_address: String
+  city: String
+  state_province: String
+  postal_code: String
+  lead_status: String
+  lead_type: String
+  teams: [Team] @relation(name: "BELONGS TO", direction: "OUT")
+  avgStars: Float @cypher(statement: "MATCH (this)<-[:REVIEWS]-(r:Review) RETURN coalesce(avg(r.stars),0.0)")
+  reviews: [Review] @relation(name: "REVIEWS", direction: "IN")
+  categories: [Category] @relation(name: "IN_CATEGORY", direction: "OUT")
+}
+
+type Company {
+  id: ID!
+  name: String
+  address: String
+  city: String
+  state: String
+  avgStars: Float @cypher(statement: "MATCH (this)<-[:REVIEWS]-(r:Review) RETURN coalesce(avg(r.stars),0.0)")
+  reviews: [Review] @relation(name: "REVIEWS", direction: "IN")
+  categories: [Category] @relation(name: "IN_CATEGORY", direction: "OUT")
+}
+
+type Property {
+  id: ID!
+  name: String
+  address: String
+  city: String
+  state: String
+  avgStars: Float @cypher(statement: "MATCH (this)<-[:REVIEWS]-(r:Review) RETURN coalesce(avg(r.stars),0.0)")
+  reviews: [Review] @relation(name: "REVIEWS", direction: "IN")
+  categories: [Category] @relation(name: "IN_CATEGORY", direction: "OUT")
+}
+
+type Listing {
+  id: ID!
+  name: String
+  address: String
+  city: String
+  state: String
+  avgStars: Float @cypher(statement: "MATCH (this)<-[:REVIEWS]-(r:Review) RETURN coalesce(avg(r.stars),0.0)")
+  reviews: [Review] @relation(name: "REVIEWS", direction: "IN")
+  categories: [Category] @relation(name: "IN_CATEGORY", direction: "OUT")
+}
+
+type Space {
+  id: ID!
+  name: String
+  address: String
+  city: String
+  state: String
+  avgStars: Float @cypher(statement: "MATCH (this)<-[:REVIEWS]-(r:Review) RETURN coalesce(avg(r.stars),0.0)")
+  reviews: [Review] @relation(name: "REVIEWS", direction: "IN")
+  categories: [Category] @relation(name: "IN_CATEGORY", direction: "OUT")
+}
+
+type Deal {
+  id: ID!
+  name: String
+  address: String
+  city: String
+  state: String
+  avgStars: Float @cypher(statement: "MATCH (this)<-[:REVIEWS]-(r:Review) RETURN coalesce(avg(r.stars),0.0)")
+  reviews: [Review] @relation(name: "REVIEWS", direction: "IN")
+  categories: [Category] @relation(name: "IN_CATEGORY", direction: "OUT")
+}
+
+type Task {
+  id: ID!
+  name: String
+  address: String
+  city: String
+  state: String
+  avgStars: Float @cypher(statement: "MATCH (this)<-[:REVIEWS]-(r:Review) RETURN coalesce(avg(r.stars),0.0)")
+  reviews: [Review] @relation(name: "REVIEWS", direction: "IN")
+  categories: [Category] @relation(name: "IN_CATEGORY", direction: "OUT")
+}
+
+type Email {
+  id: ID!
+  name: String
+  address: String
+  city: String
+  state: String
+  avgStars: Float @cypher(statement: "MATCH (this)<-[:REVIEWS]-(r:Review) RETURN coalesce(avg(r.stars),0.0)")
+  reviews: [Review] @relation(name: "REVIEWS", direction: "IN")
+  categories: [Category] @relation(name: "IN_CATEGORY", direction: "OUT")
+}
+
+type Article {
+  id: ID!
+  name: String
+  address: String
+  city: String
+  state: String
+  avgStars: Float @cypher(statement: "MATCH (this)<-[:REVIEWS]-(r:Review) RETURN coalesce(avg(r.stars),0.0)")
+  reviews: [Review] @relation(name: "REVIEWS", direction: "IN")
+  categories: [Category] @relation(name: "IN_CATEGORY", direction: "OUT")
+}
+
+type Post {
+  id: ID!
+  name: String
+  address: String
+  city: String
+  state: String
+  avgStars: Float @cypher(statement: "MATCH (this)<-[:REVIEWS]-(r:Review) RETURN coalesce(avg(r.stars),0.0)")
+  reviews: [Review] @relation(name: "REVIEWS", direction: "IN")
+  categories: [Category] @relation(name: "IN_CATEGORY", direction: "OUT")
+}
+
+type Note {
+  id: ID!
+  name: String
+  address: String
+  city: String
+  state: String
+  avgStars: Float @cypher(statement: "MATCH (this)<-[:REVIEWS]-(r:Review) RETURN coalesce(avg(r.stars),0.0)")
+  reviews: [Review] @relation(name: "REVIEWS", direction: "IN")
+  categories: [Category] @relation(name: "IN_CATEGORY", direction: "OUT")
+}
+
+type Transaction {
+  id: ID!
+  name: String
+  address: String
+  city: String
+  state: String
+  avgStars: Float @cypher(statement: "MATCH (this)<-[:REVIEWS]-(r:Review) RETURN coalesce(avg(r.stars),0.0)")
+  reviews: [Review] @relation(name: "REVIEWS", direction: "IN")
+  categories: [Category] @relation(name: "IN_CATEGORY", direction: "OUT")
+}
+
+type Meeting {
+  id: ID!
+  name: String
+  address: String
+  city: String
+  state: String
+  avgStars: Float @cypher(statement: "MATCH (this)<-[:REVIEWS]-(r:Review) RETURN coalesce(avg(r.stars),0.0)")
+  reviews: [Review] @relation(name: "REVIEWS", direction: "IN")
+  categories: [Category] @relation(name: "IN_CATEGORY", direction: "OUT")
+}
+
+type Review {
+  id: ID!
+  stars: Int
+  text: String
+  date: Date
+  business: Business @relation(name: "REVIEWS", direction: "OUT")
+  user: User @relation(name: "WROTE", direction: "IN")
+}
+
+type Category {
+  name: ID!
+  businesses: [Business] @relation(name: "IN_CATEGORY", direction: "IN")
+}
+
+type Query {
+  usersBySubstring(substring: String): [User]
+    @cypher(
+      statement: "MATCH (u:User) WHERE u.name CONTAINS $substring RETURN u"
+    )
+}
