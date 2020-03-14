@@ -29,6 +29,8 @@ type Contact {
   state: String
   linkedin_url: String
   facebook_url: String
+  instagram_url: String
+  twitter_url: String
   street_address: String
   city: String
   state_province: String
