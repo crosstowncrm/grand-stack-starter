@@ -35,6 +35,9 @@ type Contact {
   postal_code: String
   lead_status: String
   lead_type: String
+  companies:  [Company] @relation(name: "HAS RELATIONSHIP WITH", direction: "OUT")
+  properties:  [Property] @relation(name: "HAS INTEREST IN", direction: "OUT")
+  listings:  [Listing] @relation(name: "LISTS", direction: "OUT")
   teams: [Team] @relation(name: "BELONGS TO", direction: "OUT")
   avgStars: Float @cypher(statement: "MATCH (this)<-[:REVIEWS]-(r:Review) RETURN coalesce(avg(r.stars),0.0)")
   reviews: [Review] @relation(name: "REVIEWS", direction: "IN")
@@ -47,6 +50,8 @@ type Company {
   address: String
   city: String
   state: String
+  contact:  Contact @relation(name: "HAS RELATIONSHIP WITH", direction: "IN")
+  properties:  [Property] @relation(name: "HAS INTEREST IN", direction: "OUT")
   avgStars: Float @cypher(statement: "MATCH (this)<-[:REVIEWS]-(r:Review) RETURN coalesce(avg(r.stars),0.0)")
   reviews: [Review] @relation(name: "REVIEWS", direction: "IN")
   categories: [Category] @relation(name: "IN_CATEGORY", direction: "OUT")
@@ -58,6 +63,8 @@ type Property {
   address: String
   city: String
   state: String
+  contact:  Contact @relation(name: "HAS INTEREST IN", direction: "IN")
+  company:  Company @relation(name: "HAS INTEREST IN", direction: "IN")
   avgStars: Float @cypher(statement: "MATCH (this)<-[:REVIEWS]-(r:Review) RETURN coalesce(avg(r.stars),0.0)")
   reviews: [Review] @relation(name: "REVIEWS", direction: "IN")
   categories: [Category] @relation(name: "IN_CATEGORY", direction: "OUT")
