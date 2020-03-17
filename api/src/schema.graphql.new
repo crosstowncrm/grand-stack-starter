@@ -102,8 +102,6 @@ type Parcel {
   section_township_range: String
 }
 
-
-
 type Listing {
   id: ID!
   name: String
@@ -191,10 +189,12 @@ type Space {
 
 type Deal {
   id: ID!
-  name: String
-  address: String
-  city: String
-  state: String
+  dealName: String
+  amount: String
+  createDate: String
+  closeDate: String
+  dealStage: String
+  user: User @relation(name: "IS OWNER OF", direction: "IN") 
   avgStars: Float @cypher(statement: "MATCH (this)<-[:REVIEWS]-(r:Review) RETURN coalesce(avg(r.stars),0.0)")
   reviews: [Review] @relation(name: "REVIEWS", direction: "IN")
   categories: [Category] @relation(name: "IN_CATEGORY", direction: "OUT")
@@ -213,10 +213,9 @@ type Task {
 
 type Email {
   id: ID!
-  name: String
-  address: String
-  city: String
-  state: String
+  subject: String
+  content: String
+  sentDate: String
   avgStars: Float @cypher(statement: "MATCH (this)<-[:REVIEWS]-(r:Review) RETURN coalesce(avg(r.stars),0.0)")
   reviews: [Review] @relation(name: "REVIEWS", direction: "IN")
   categories: [Category] @relation(name: "IN_CATEGORY", direction: "OUT")
