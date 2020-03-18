@@ -1,12 +1,16 @@
 type User {
   id: ID!
-  name: String
+  first_name: String
+  last_name: String
+  email: String
+  phone_number: String
+  email_signature: String
+  address:  Address @relation(name: "HAS ADDRESS", direction: "OUT")
   follows: [User] @relation(name: "FOLLOWS", direction: "BOTH")
   teams:  [Team] @relation(name: "IS MEMBER OF", direction: "OUT")
   contacts:  [Contact] @relation(name: "OWNS PROSPECT", direction: "OUT")
   companies:  [Contact] @relation(name: "OWNS PROSPECT", direction: "OUT")
   listings:  [Listing] @relation(name: "IS PRIMARY AGENT FOR", direction: "OUT")
-  reviews: [Review] @relation(name: "WROTE", direction: "OUT")  
 }
 
 type Contact {
@@ -29,27 +33,30 @@ type Contact {
   companies:  [Company] @relation(name: "IS ASSOCIATED WITH", direction: "OUT")
   properties:  [Property] @relation(name: "HAS INTEREST IN", direction: "OUT")
   listings:  [Listing] @relation(name: "LISTS", direction: "OUT")
+  deals:  [Deal] @relation(name: "IS ASSOCIATED WITH", direction: "IN")
   teams: [Team] @relation(name: "BELONGS TO", direction: "OUT")
-  avgStars: Float @cypher(statement: "MATCH (this)<-[:REVIEWS]-(r:Review) RETURN coalesce(avg(r.stars),0.0)")
-  reviews: [Review] @relation(name: "REVIEWS", direction: "IN")
-  categories: [Category] @relation(name: "IN_CATEGORY", direction: "OUT")
 }
 
 type Company {
   id: ID!
   name: String
   address:  Address @relation(name: "HAS ADDRESS", direction: "OUT")
-  contact:  Contact @relation(name: "IS ASSOCIATED WITH", direction: "IN")
+  phone_numbers: [String]
+  contacts:  [Contact] @relation(name: "IS ASSOCIATED WITH", direction: "IN")
   properties:  [Property] @relation(name: "HAS INTEREST IN", direction: "OUT")
+  deals:  [Deal] @relation(name: "IS ASSOCIATED WITH", direction: "OUT")
   listings:  [Listing] @relation(name: "LISTS", direction: "OUT")
 }
 
 type Property {
   id: ID!
   name: String
+  property_type: String
+  secondary_type: String
+  additional_types: [String]
   address:  Address @relation(name: "HAS ADDRESS", direction: "OUT")
   parcels:  [Parcel] @relation(name: "INCLUDES PARCELS", direction: "OUT")
-  structures: [Structure] @relation(name: )
+  structures: [Structure] @relation(name: "INCLUDES STRUCTURES", direction: "OUT")
   spaces:  [Space] @relation(name: "IS UNIT OF", direction: "IN")
   contact:  Contact @relation(name: "HAS INTEREST IN", direction: "IN")
   company:  Company @relation(name: "HAS INTEREST IN", direction: "IN")
@@ -105,11 +112,14 @@ type Parcel {
 type Listing {
   id: ID!
   name: String
-  leaseSale: String
+  lease_or_sale: String
   commission: String  
-  listingExpiration: String
+  listing_expiration: String
   price: Int
   priceTerms: String
+  noi: Int
+  cap_rate: Float
+  sale_conditions: [String]
   leaseTerm: String
   leaseType: String
   sfAvailMin: Int
@@ -129,12 +139,12 @@ type Listing {
   amenities: [String]
   spaceNotes: String
   spaceHighlights: [String]
-  property:  Property @relation(name: "IS LISTING OF", direction: "OUT")
+  description: String
+  images: [String]
+  documents: [String]
+  properties:  [Property] @relation(name: "IS LISTING OF", direction: "OUT")
   space:  [Space] @relation(name: "IS LISTING OF", direction: "OUT")
   user:  User @relation(name: "IS PRIMARY AGENT FOR", direction: "IN")
-  avgStars: Float @cypher(statement: "MATCH (this)<-[:REVIEWS]-(r:Review) RETURN coalesce(avg(r.stars),0.0)")
-  reviews: [Review] @relation(name: "REVIEWS", direction: "IN")
-  categories: [Category] @relation(name: "IN_CATEGORY", direction: "OUT")
 }
 
 type Structure {
@@ -164,15 +174,22 @@ type Structure {
   basement_type: String
   quality: String
   flooring_types: [String]
-  plumbing_fixtures_count: String
+  plumbing_fixtures_count: Int
   interior_wall_type: String
   water_type: String
   sewer_type: String
   total_area_sq_ft: String
-  stories: String
-  avgStars: Float @cypher(statement: "MATCH (this)<-[:REVIEWS]-(r:Review) RETURN coalesce(avg(r.stars),0.0)")
-  reviews: [Review] @relation(name: "REVIEWS", direction: "IN")
-  categories: [Category] @relation(name: "IN_CATEGORY", direction: "OUT")
+  typical_floor_sf: String
+  building_status: String
+  tenancy: String
+  ceiling_height: Int
+  docks_int: Int
+  docks_ext: Int
+  elevators_passenger: Int
+  elevators_freight: Int
+  elevators_escalator: Int
+  elevators_parking: Int
+  features: [String]
 }
 
 type Space {
@@ -182,98 +199,191 @@ type Space {
   unit: String
   total_area_sq_ft: String
   property:  Property @relation(name: "IS UNIT OF", direction: "OUT")
-  avgStars: Float @cypher(statement: "MATCH (this)<-[:REVIEWS]-(r:Review) RETURN coalesce(avg(r.stars),0.0)")
-  reviews: [Review] @relation(name: "REVIEWS", direction: "IN")
-  categories: [Category] @relation(name: "IN_CATEGORY", direction: "OUT")
 }
 
 type Deal {
   id: ID!
   dealName: String
   amount: String
-  createDate: String
-  closeDate: String
+  createDate: DateTime
+  closeDate: DateTime
   dealStage: String
   user: User @relation(name: "IS OWNER OF", direction: "IN") 
-  avgStars: Float @cypher(statement: "MATCH (this)<-[:REVIEWS]-(r:Review) RETURN coalesce(avg(r.stars),0.0)")
-  reviews: [Review] @relation(name: "REVIEWS", direction: "IN")
-  categories: [Category] @relation(name: "IN_CATEGORY", direction: "OUT")
 }
 
 type Task {
   id: ID!
   name: String
-  createDate: String
+  createDate: DateTime
+  completeDate: DateTime
   dueDate: String
-
-  avgStars: Float @cypher(statement: "MATCH (this)<-[:REVIEWS]-(r:Review) RETURN coalesce(avg(r.stars),0.0)")
-  reviews: [Review] @relation(name: "REVIEWS", direction: "IN")
-  categories: [Category] @relation(name: "IN_CATEGORY", direction: "OUT")
+  user: User @relation(name: "CREATED", direction: "IN")
+  user: User @relation(name: "ASSIGNED_TO", direction: "IN")
+  contact: Contact @relation(name: "APPLIES_TO", direction: "OUT")
+  deal: Deal @relation(name: "APPLIES_TO", direction: "OUT")
+  company: Company @relation(name: "APPLIES_TO", direction: "OUT")
+  property: Property @relation(name: "APPLIES_TO", direction: "OUT")
+  listing: Listing @relation(name: "APPLIES_TO", direction: "OUT")
 }
 
 type Email {
   id: ID!
+  forward: Boolean
+  reply: Boolean
   subject: String
   content: String
-  sentDate: String
-  avgStars: Float @cypher(statement: "MATCH (this)<-[:REVIEWS]-(r:Review) RETURN coalesce(avg(r.stars),0.0)")
-  reviews: [Review] @relation(name: "REVIEWS", direction: "IN")
-  categories: [Category] @relation(name: "IN_CATEGORY", direction: "OUT")
+  sent: DateTime
+  sent_by_user: SENT_BY_USER
+  sent_by_contact: SENT_BY_CONTACT
+  sent_to_user: SENT_TO_USER
+  sent_to_contact: [SENT_TO_CONTACT]
+  opened: [OPENED]
+  clicked: [CLICKED]
+}
+
+type SentByUser @relation(name: "SENT_BY_USER") {
+  from: User
+  to: Email
+  timestamp: DateTime
+}
+
+type SentByContact @relation(name: "SENT_BY_CONTACT") {
+  from: Contact
+  to: Email
+  timestamp: DateTime
+}
+
+type SentToUser @relation(name: "SENT_TO_USER") {
+  from: User
+  to: Email
+  timestamp: DateTime
+}
+
+type SentToContact @relation(name: "SENT_TO_CONTACT") {
+  from: Contact
+  to: Email
+  timestamp: DateTime
+}
+
+type Opened @relation(name: "OPENED") {
+  from: Contact
+  to: Email
+  timestamp: DateTime
+}
+
+type Clicked @relation(name: "CLICKED") {
+  from: Contact
+  to: Email
+  timestamp: DateTime
 }
 
 type Article {
   id: ID!
-  name: String
-  address: String
-  city: String
-  state: String
-  avgStars: Float @cypher(statement: "MATCH (this)<-[:REVIEWS]-(r:Review) RETURN coalesce(avg(r.stars),0.0)")
-  reviews: [Review] @relation(name: "REVIEWS", direction: "IN")
+  title: String
+  excerpt: String
+  content: String
+  source: String
+  link: String
   categories: [Category] @relation(name: "IN_CATEGORY", direction: "OUT")
+  location: Point
+  viewed: [VIEWED]
+  shared: [SHARED]
+  opened_source: [OPENED_SOURCE]
+}
+
+type Viewed @relation(name: "VIEWED") {
+  from: Contact
+  to: Article
+  timestamp: DateTime
+}
+
+type OpenedSource @relation(name: "OPENED_SOURCE") {
+  from: Contact
+  to: Article
+  timestamp: DateTime
+}
+
+type Shared @relation(name: "SHARED") {
+  from: Contact
+  to: Article
+  timestamp: DateTime
+  outlet: String
 }
 
 type Post {
   id: ID!
-  name: String
-  address: String
-  city: String
-  state: String
-  avgStars: Float @cypher(statement: "MATCH (this)<-[:REVIEWS]-(r:Review) RETURN coalesce(avg(r.stars),0.0)")
-  reviews: [Review] @relation(name: "REVIEWS", direction: "IN")
+  title: String
+  meta: String
+  keywords: [String]
+  images: [String]
+  content: String
+  viewed_post: [VIEWED_POST]
+  shared_post: [SHARED_POST]
   categories: [Category] @relation(name: "IN_CATEGORY", direction: "OUT")
+}
+
+type ViewedPost @relation(name: "VIEWED_POST") {
+  from: Contact
+  to: Post
+  timestamp: DateTime
+}
+
+type SharedPost @relation(name: "SHARED_POST") {
+  from: Contact
+  to: POST
+  timestamp: DateTime
+  outlet: String
 }
 
 type Note {
   id: ID!
-  name: String
-  address: String
-  city: String
-  state: String
-  avgStars: Float @cypher(statement: "MATCH (this)<-[:REVIEWS]-(r:Review) RETURN coalesce(avg(r.stars),0.0)")
-  reviews: [Review] @relation(name: "REVIEWS", direction: "IN")
-  categories: [Category] @relation(name: "IN_CATEGORY", direction: "OUT")
+  content: String
+  createDate: DateTime
+  contact: Contact @relation(name: "APPLIES_TO", direction: "OUT")
+  deal: Deal @relation(name: "APPLIES_TO", direction: "OUT")
+  company: Company @relation(name: "APPLIES_TO", direction: "OUT")
+  property: Property @relation(name: "APPLIES_TO", direction: "OUT")
+  listing: Listing @relation(name: "APPLIES_TO", direction: "OUT")
 }
 
 type Transaction {
   id: ID!
-  name: String
-  address: String
-  city: String
-  state: String
-  avgStars: Float @cypher(statement: "MATCH (this)<-[:REVIEWS]-(r:Review) RETURN coalesce(avg(r.stars),0.0)")
-  reviews: [Review] @relation(name: "REVIEWS", direction: "IN")
-  categories: [Category] @relation(name: "IN_CATEGORY", direction: "OUT")
+  source: String
+  sale_price: Int
+  sale: Boolean
+  lease: Boolean
+  sale_price_description: String
+  distressed_sale: Boolean
+  date: String
+  listingAgent: Contact @relation(name: "REPRESENTED_SELLER", direction: "IN")
+  sellingAgent: Contact @relation(name: "REPRESENTED_BUYER", direction: "IN")
+  buyers: [Contact] @relation(name: "WAS_BUYER", direction: "IN")
+  sellers: [Contact] @relation(name: "WAS_SELLER", direction: "IN")
+  companyBuyers: [Company] @relation(name: "WAS_BUYER", direction: "IN")
+  companySellers: [Company] @relation(name: "WAS_SELLER", direction: "IN")
+  properties: [Property] @relation(name: "SALE_OR_LEASE_OF", direction: "OUT")
+  spaces: [Space] @relation(name: "SALE_OR_LEASE_OF", direction: "OUT")
+  source: String
+  lender_name: String
+  loan_amount: Int
+  loan_type: String
+  loan_due_date: DateTime
+  loan_finance_type: String
+  loan_interest_rate: Float
 }
 
 type Meeting {
   id: ID!
-  name: String
-  address: String
-  city: String
-  state: String
-  avgStars: Float @cypher(statement: "MATCH (this)<-[:REVIEWS]-(r:Review) RETURN coalesce(avg(r.stars),0.0)")
-  reviews: [Review] @relation(name: "REVIEWS", direction: "IN")
-  categories: [Category] @relation(name: "IN_CATEGORY", direction: "OUT")
+  title: String
+  create_date: DateTime
+  meeting_time: DateTime
+  recurring: Boolean
+  recurring_interval: String
+  meeting_notes: String
+  created_by: User @relation(name: "MEETING_CREATED_BY", direction: "OUT")
+  requested_by: Contact @relation(name: "MEETING_REQUESTED_BY", direction: "OUT")
+  additional_attendees: [Contact] @relation(name: "ALSO_ATTENDED_BY", direction: "OUT")
+  meeting_complete: Boolean
 }
 
 type Review {
@@ -287,7 +397,8 @@ type Review {
 
 type Category {
   name: ID!
-  businesses: [Business] @relation(name: "IN_CATEGORY", direction: "IN")
+  articles: [Article] @relation(name: "IN_CATEGORY", direction: "IN")
+  posts: [Post] @relation(name: "IN_CATEGORY", direction: "IN")
 }
 
 type Query {
