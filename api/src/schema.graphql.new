@@ -48,6 +48,12 @@ type Company {
   listings:  [Listing] @relation(name: "LISTS", direction: "OUT")
 }
 
+type Household {
+  id: ID!
+  contacts:  [Contact] @relation(name: "IS MEMBER OF", direction: "IN")
+  address:  Address @relation(name: "HAS ADDRESS", direction: "OUT")
+}
+
 type Property {
   id: ID!
   name: String
